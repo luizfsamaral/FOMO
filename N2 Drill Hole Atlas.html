@@ -1,0 +1,230 @@
+<!doctype html><html><head><meta charset=utf8><meta name=viewport content="width=device-width,initial-scale=1,viewport-fit=cover"><style>:root{color-scheme:light;box-sizing:border-box;padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px)}html{scroll-padding-top:env(safe-area-inset-top,0px)}body{margin:0;padding:0;font:14px -apple-system,BlinkMacSystemFont,sans-serif;background:#faf9f5;color:#141413}img{max-width:100%}[hidden]:not([hidden=until-found i]){display:none!important}</style></head><body>
+<title>N2 Drill Hole Atlas</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Barlow+Condensed:wght@500;600;700&family=Source+Sans+3:wght@400;600;700&family=JetBrains+Mono:wght@400;600&display=swap">
+<style>
+/* Layout: survey sheet. Header and KPI strip, then plan map beside a hole card, then the full interval register. */
+:root{
+  --paper:#F2F3EE; --sheet:#FBFBF8; --ink:#1C2220; --muted:#5D6661; --rule:#D6D9D0; --grid:#E3E5DE;
+  --accent:#9C6B14; --rj:#2F6F73; --sel:#C2410C; --vg:#7C3AED;
+  --g1:#E6D7A6; --g2:#D4AE52; --g3:#B9841C; --g4:#865410; --g5:#4F2A08;
+  --display:"Barlow Condensed","Arial Narrow",Arial,sans-serif;
+  --body:"Source Sans 3","Segoe UI",system-ui,sans-serif;
+  --mono:"JetBrains Mono",ui-monospace,Menlo,Consolas,monospace;
+}
+@media (prefers-color-scheme: dark){:root:not([data-theme="light"]){
+  --paper:#151917; --sheet:#1C211F; --ink:#E7EAE4; --muted:#9AA39D; --rule:#333B37; --grid:#262D2A;
+  --accent:#E0B04F; --rj:#6FB7BA; --sel:#FB923C; --vg:#B794F6;
+  --g1:#6B6142; --g2:#A3863C; --g3:#D6A430; --g4:#F0C55A; --g5:#FFE6A8; color-scheme:dark}}
+:root[data-theme="dark"]{
+  --paper:#151917; --sheet:#1C211F; --ink:#E7EAE4; --muted:#9AA39D; --rule:#333B37; --grid:#262D2A;
+  --accent:#E0B04F; --rj:#6FB7BA; --sel:#FB923C; --vg:#B794F6;
+  --g1:#6B6142; --g2:#A3863C; --g3:#D6A430; --g4:#F0C55A; --g5:#FFE6A8; color-scheme:dark}
+*{box-sizing:border-box}
+body{background:var(--paper);color:var(--ink);font:15px/1.5 var(--body);margin:0;padding-inline:clamp(16px,3vw,40px);padding-block:28px 48px}
+.wrap{max-width:1240px;margin:0 auto;display:flex;flex-direction:column;gap:22px}
+header{display:flex;flex-wrap:wrap;justify-content:space-between;align-items:end;gap:12px;border-bottom:2px solid var(--ink);padding-bottom:12px}
+h1{font:700 clamp(30px,4.4vw,46px)/1 var(--display);letter-spacing:.01em;margin:0;text-wrap:balance}
+.eyebrow{font:600 12px var(--mono);letter-spacing:.08em;text-transform:uppercase;color:var(--muted)}
+.meta{font:12px var(--mono);color:var(--muted);text-align:right}
+.kpis{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:0;border:1px solid var(--rule);background:var(--sheet)}
+.kpi{padding:12px 16px;border-left:1px solid var(--rule)}.kpi:first-child{border-left:0}
+.kpi b{display:block;font:600 28px/1.1 var(--display);font-variant-numeric:tabular-nums}
+.kpi span{font-size:13px;color:var(--muted)}
+@media (max-width:720px){.kpis{grid-template-columns:repeat(2,minmax(0,1fr))}.kpi:nth-child(3){border-left:0}.kpi:nth-child(n+3){border-top:1px solid var(--rule)}}
+.main{display:grid;grid-template-columns:minmax(0,1fr) 340px;gap:18px;align-items:start}
+@media (max-width:920px){.main{grid-template-columns:minmax(0,1fr)}}
+.panel{background:var(--sheet);border:1px solid var(--rule)}
+.bar{display:flex;flex-wrap:wrap;gap:8px;align-items:center;justify-content:space-between;padding:10px 12px;border-bottom:1px solid var(--rule)}
+.seg{display:inline-flex;border:1px solid var(--rule)}
+.seg button,.chips button{font:600 13px var(--body);background:transparent;color:var(--ink);border:0;padding:6px 12px;cursor:pointer}
+.seg button+button{border-left:1px solid var(--rule)}
+.seg button[aria-pressed="true"],.chips button[aria-pressed="true"]{background:var(--ink);color:var(--sheet)}
+button:focus-visible{outline:2px solid var(--sel);outline-offset:2px}
+.legend{display:flex;flex-wrap:wrap;gap:10px;font:12px var(--mono);color:var(--muted);align-items:center}
+.sw{display:inline-block;width:18px;height:6px;vertical-align:middle;margin-right:4px}
+svg text{font-family:var(--mono)}
+#map{display:block;width:100%;height:auto}
+.note{font-size:12.5px;color:var(--muted);padding:8px 12px;border-top:1px solid var(--rule)}
+.card{padding:14px 16px;display:flex;flex-direction:column;gap:10px}
+.card h2{font:700 28px/1 var(--display);margin:0}
+.tag{display:inline-block;font:600 11px var(--mono);letter-spacing:.06em;text-transform:uppercase;padding:2px 7px;border:1px solid var(--rule);color:var(--muted)}
+.tag.vg{color:var(--vg);border-color:var(--vg)}.tag.rj{color:var(--rj);border-color:var(--rj)}.tag.map{color:var(--sel);border-color:var(--sel)}
+dl{display:grid;grid-template-columns:auto 1fr;gap:3px 12px;margin:0;font-size:13.5px}
+dt{color:var(--muted)} dd{margin:0;font-family:var(--mono);font-size:12.5px;font-variant-numeric:tabular-nums}
+.strip{display:flex;flex-direction:column;gap:4px}
+.strip-lbl{display:flex;justify-content:space-between;font:12px var(--mono);color:var(--muted)}
+.ints{display:flex;flex-direction:column;gap:6px;margin:0;padding:0;list-style:none}
+.ints li{display:grid;grid-template-columns:14px 1fr auto;gap:8px;align-items:center;font:12.5px var(--mono);font-variant-numeric:tabular-nums}
+.ints li i{width:14px;height:14px;display:block}
+.callout{font-size:13.5px;border-left:3px solid var(--sel);padding:4px 0 4px 10px}
+.tablewrap{overflow-x:auto}
+table{border-collapse:collapse;width:100%;font-size:13.5px;min-width:760px}
+th{font:600 11px var(--mono);letter-spacing:.06em;text-transform:uppercase;color:var(--muted);text-align:left;padding:8px 10px;border-bottom:2px solid var(--ink);position:sticky;top:0;background:var(--sheet)}
+td{padding:7px 10px;border-bottom:1px solid var(--rule);font-variant-numeric:tabular-nums}
+td.num,th.num{text-align:right;font-family:var(--mono);font-size:12.5px}
+tbody tr{cursor:pointer} tbody tr:hover{background:var(--grid)} tbody tr.on{background:var(--grid);box-shadow:inset 3px 0 0 var(--sel)}
+.gm{display:inline-block;height:8px;background:var(--accent);vertical-align:middle;margin-left:6px}
+.chips{display:flex;flex-wrap:wrap;gap:6px}.chips button{border:1px solid var(--rule)}
+h3{font:700 22px var(--display);margin:0}
+.hole-hit{cursor:pointer}
+</style>
+
+<div class="wrap">
+  <header>
+    <div>
+      <div class="eyebrow">Formation Metals · N2 Gold Project · Matagami, Quebec</div>
+      <h1>N2 Drill Hole Atlas</h1>
+    </div>
+    <div class="meta">Holes released Jan 15 to Sep 29, 2026<br>NAD83 / UTM zone 18N</div>
+  </header>
+
+  <section class="kpis" id="kpis"></section>
+
+  <section class="main">
+    <div class="panel">
+      <div class="bar">
+        <div class="seg" role="group" aria-label="Map extent">
+          <button id="v-a" aria-pressed="true">A Zone</button>
+          <button id="v-all" aria-pressed="false">Whole program</button>
+        </div>
+        <div class="legend" id="legend"></div>
+      </div>
+      <svg id="map" role="img" aria-label="Plan map of drill hole collars and traces"></svg>
+      <div class="note">Traces are straight-line plan projections from collar azimuth, dip and length. Collars marked "map" were digitized from release maps (about ±20 m); the rest come from release collar tables. Click a hole to inspect it.</div>
+    </div>
+    <aside class="panel card" id="card" aria-live="polite"></aside>
+  </section>
+
+  <section class="panel">
+    <div class="bar">
+      <h3>Interval register</h3>
+      <div class="chips" id="chips"></div>
+    </div>
+    <div class="tablewrap"><table>
+      <thead><tr><th>Hole</th><th>Zone</th><th>First released</th><th class="num">From (m)</th><th class="num">To (m)</th><th class="num">Length (m)</th><th class="num">Au (g/t)</th><th class="num">Gram metres</th><th class="num">Top vertical (m)</th></tr></thead>
+      <tbody id="tb"></tbody>
+    </table></div>
+    <div class="note">Main intervals and notable secondary intervals as published. Lengths are downhole, not true width. N2-26-033 uses a 0.1 g/t cut-off; other 2026 tables state 0.2 g/t. N2-25-006 is listed as 21.9 m in the releases, though 154.4 to 175.5 m is 21.1 m.</div>
+  </section>
+</div>
+
+<script>
+const DATA = {"holes": [{"id": "N2-25-001", "zone": "RJ", "e": 302907, "n": 5489939, "az": 0, "dip": -60, "len": 400, "src": "table", "rel": "2026-04-16", "status": "Assayed", "visual": 88.3, "ints": [[261.7, 268.3, 0.23, 1], [271.5, 281.7, 0.11, 1]]}, {"id": "N2-25-002", "zone": "RJ", "e": 303069, "n": 5489989, "az": 0, "dip": -60, "len": 300, "src": "table", "rel": "2026-04-16", "status": "Assayed", "visual": 55.4, "ints": [[98.5, 102.0, 0.24, 0], [183.1, 207.5, 0.34, 1], [289.3, 290.3, 0.54, 0]]}, {"id": "N2-25-003", "zone": "RJ", "e": 303224, "n": 5490034, "az": 0, "dip": -50, "len": 225, "src": "table", "rel": "2026-04-16", "status": "Assayed", "visual": 152.9, "ints": [[23.1, 27.6, 3.0, 1], [52.9, 64.7, 0.6, 1], [110, 112, 0.76, 0]]}, {"id": "N2-25-004", "zone": "A", "e": 304415, "n": 5490082, "az": 23, "dip": -55, "len": 235, "src": "table", "rel": "2026-04-16", "status": "Assayed", "visual": 91.6, "ints": [[14.3, 15.6, 1.03, 0], [96.0, 102.1, 0.29, 0], [129.0, 133.6, 0.4, 0], [180.0, 220.4, 0.83, 1]]}, {"id": "N2-25-005", "zone": "A", "e": 304513, "n": 5490137, "az": 24, "dip": -45, "len": 60, "src": "map", "rel": "2026-02-12", "status": "Assayed", "visual": 102.6, "ints": [[14.0, 56.3, 0.91, 1]]}, {"id": "N2-25-006", "zone": "A", "e": 304518, "n": 5490025, "az": 23, "dip": -60, "len": 310, "src": "table", "rel": "2026-04-16", "status": "Assayed", "visual": 102.6, "ints": [[69.4, 108.0, 0.66, 1], [154.4, 175.5, 1.8, 1], [197.6, 199.3, 1.6, 0], [231.0, 253.1, 0.67, 1]]}, {"id": "N2-25-007", "zone": "A", "e": 304631, "n": 5489987, "az": 23, "dip": -60, "len": 280, "src": "table", "rel": "2026-02-24", "status": "Assayed", "visual": 95.7, "ints": [[96.5, 106.5, 0.55, 0], [112.2, 130.7, 0.67, 1], [139.9, 162.1, 1.3, 1], [243.8, 251.0, 0.48, 0]]}, {"id": "N2-25-008", "zone": "A", "e": 304699, "n": 5489950, "az": 23, "dip": -60, "len": 300, "src": "table", "rel": "2026-02-24", "status": "Assayed", "visual": 208.8, "ints": [[36, 46, 0.46, 0], [109, 170.1, 0.95, 1], [250.2, 258.5, 0.55, 0]]}, {"id": "N2-25-009", "zone": "A", "e": 304466, "n": 5490056, "az": 23, "dip": -60, "len": 306, "src": "table", "rel": "2026-04-16", "status": "Assayed", "visual": 135.7, "ints": [[86.7, 128.8, 0.61, 1], [168.9, 192.9, 1.37, 1], [207.8, 231.0, 0.96, 1]]}, {"id": "N2-25-010", "zone": "A", "e": 304664, "n": 5489969, "az": 23, "dip": -60, "len": 350, "src": "table", "rel": "2026-02-24", "status": "Assayed", "visual": 92.1, "ints": [[23.8, 30.0, 0.33, 0], [117.6, 136.9, 1.43, 1], [236.7, 248.2, 0.78, 1]]}, {"id": "N2-25-011", "zone": "A", "e": 304156, "n": 5489918, "az": 30, "dip": -60, "len": 470, "src": "map", "rel": "2026-02-12", "status": "Assayed", "visual": 166.8, "ints": [[291.0, 298.5, 0.69, 1]]}, {"id": "N2-25-012", "zone": "A", "e": 304582, "n": 5490090, "az": 17, "dip": -45, "len": 150, "src": "map", "rel": "2026-02-12", "status": "Assayed", "visual": null, "ints": [[64.1, 94.5, 1.75, 1], [142.5, 147.0, 2.07, 0]]}, {"id": "N2-25-013", "zone": "A", "e": 304256, "n": 5489866, "az": 20, "dip": -60, "len": 440, "src": "map", "rel": "2026-02-12", "status": "Assayed", "visual": 121.7, "ints": [[144.9, 145.4, 4.16, 1]]}, {"id": "N2-26-021", "zone": "A west", "e": 304335, "n": 5490116, "az": 336, "dip": -57, "len": 306, "src": "table", "rel": "2026-06-18", "status": "Assayed", "visual": null, "ints": [[243.0, 274.0, 1.05, 1]]}, {"id": "N2-26-022", "zone": "A west", "e": 304335, "n": 5490116, "az": 8, "dip": -48, "len": 233, "src": "table", "rel": "2026-06-18", "status": "Assayed", "visual": null, "ints": [[177.2, 189.7, 1.34, 1]]}, {"id": "N2-26-024", "zone": "A south", "e": 304439, "n": 5489678, "az": 54, "dip": -50, "len": 375, "src": "map", "rel": "2026-04-21", "status": "Visible gold only", "visual": null, "ints": []}, {"id": "N2-26-15A", "zone": "A south", "e": 304438, "n": 5489814, "az": 355, "dip": -77, "len": 735, "src": "table", "rel": "2026-09-08", "status": "Assayed", "visual": 396.1, "ints": [[350.6, 362.4, 2.53, 1], [499.1, 519.7, 1.41, 1]]}, {"id": "N2-26-033", "zone": "A north", "e": 304667, "n": 5490091, "az": 64, "dip": -58, "len": 186, "src": "table", "rel": "2026-09-22", "status": "Assayed", "visual": null, "ints": [[8.4, 104.0, 0.98, 1]]}]};
+const H = DATA.holes;
+const fmtDate = d => new Date(d+"T12:00:00").toLocaleDateString("en-CA",{month:"short",day:"numeric",year:"numeric"});
+const RAMP = [[0.5,"--g1","< 0.5"],[1,"--g2","0.5 to 1"],[2,"--g3","1 to 2"],[5,"--g4","2 to 5"],[1e9,"--g5","≥ 5"]];
+const gcol = au => `var(${RAMP.find(r=>au<r[0])[1]})`;
+const rad = x => x*Math.PI/180;
+H.forEach(h=>{
+  const hz = Math.cos(rad(Math.abs(h.dip)));
+  h.pt = d => [h.e + d*hz*Math.sin(rad(h.az)), h.n + d*hz*Math.cos(rad(h.az))];
+  h.end = h.pt(h.len);
+  h.gmBest = Math.max(0,...h.ints.map(i=>i[2]*(i[1]-i[0])));
+});
+let sel = "N2-26-033", view = "a", zoneFilter = "All";
+const VIEWS = {a:{e0:304030,e1:304860,n0:5489600,n1:5490330,step:100}, all:{e0:302780,e1:304900,n0:5489560,n1:5490380,step:250}};
+
+function kpis(){
+  const assayed = H.filter(h=>h.ints.length).length;
+  const best = H.reduce((a,b)=>a.gmBest>b.gmBest?a:b);
+  const tbl = H.filter(h=>h.src==="table").length;
+  const items = [[H.length,"holes in 2026 releases"],[assayed,"with published assays"],[best.gmBest.toFixed(1),"best gram metres ("+best.id+")"],[tbl+" / "+(H.length-tbl),"collars from tables / maps"]];
+  document.getElementById("kpis").innerHTML = items.map(([b,s])=>`<div class="kpi"><b>${b}</b><span>${s}</span></div>`).join("");
+  document.getElementById("legend").innerHTML = "Au g/t " + RAMP.map(r=>`<span><i class="sw" style="background:var(${r[1]})"></i>${r[2]}</span>`).join("") +
+    `<span><i class="sw" style="background:var(--vg);height:10px;width:10px;border-radius:50%"></i>visible gold</span>`;
+}
+
+function drawMap(){
+  const v = VIEWS[view], W = v.e1-v.e0, Hh = v.n1-v.n0, s = view==="a"?1:0.42;
+  const X = e => e - v.e0, Y = n => v.n1 - n;
+  const svg = document.getElementById("map");
+  svg.setAttribute("viewBox",`0 0 ${W} ${Hh}`);
+  let o = `<rect width="${W}" height="${Hh}" fill="var(--sheet)"/>`;
+  const fs = 11/s*0.95;
+  for(let e=Math.ceil(v.e0/v.step)*v.step;e<v.e1;e+=v.step){o+=`<line x1="${X(e)}" x2="${X(e)}" y1="0" y2="${Hh}" stroke="var(--grid)" stroke-width="${1/s}"/><text x="${X(e)+3/s}" y="${Hh-6/s}" font-size="${fs}" fill="var(--muted)">${e}E</text>`}
+  for(let n=Math.ceil(v.n0/v.step)*v.step;n<v.n1-20;n+=v.step){o+=`<line y1="${Y(n)}" y2="${Y(n)}" x1="0" x2="${W}" stroke="var(--grid)" stroke-width="${1/s}"/><text x="${4/s}" y="${Y(n)-4/s}" font-size="${fs}" fill="var(--muted)">${n}N</text>`}
+  if(view==="all"){
+    o+=`<text x="${X(303060)}" y="${Y(5490250)}" font-size="${16/s}" fill="var(--rj)" font-family="Barlow Condensed" font-weight="700" text-anchor="middle">RJ ZONE</text>`;
+    o+=`<text x="${X(304450)}" y="${Y(5490290)}" font-size="${16/s}" fill="var(--accent)" font-family="Barlow Condensed" font-weight="700" text-anchor="middle">A ZONE</text>`;
+  } else {
+    o+=`<text x="${X(304060)}" y="${Y(5490250)}" font-size="20" fill="var(--accent)" font-family="Barlow Condensed" font-weight="700">A ZONE</text>`;
+  }
+  const order = [...H].sort((a,b)=>(a.id===sel)-(b.id===sel));
+  order.forEach(h=>{
+    const on = h.id===sel, sw = (on?3:2)/s, c0=[X(h.e),Y(h.n)], c1=[X(h.end[0]),Y(h.end[1])];
+    const base = h.zone==="RJ"?"var(--rj)":"var(--muted)";
+    o+=`<g class="hole-hit" data-id="${h.id}" tabindex="0" role="button" aria-label="${h.id}">`;
+    o+=`<line x1="${c0[0]}" y1="${c0[1]}" x2="${c1[0]}" y2="${c1[1]}" stroke="transparent" stroke-width="${14/s}"/>`;
+    o+=`<line x1="${c0[0]}" y1="${c0[1]}" x2="${c1[0]}" y2="${c1[1]}" stroke="${on?"var(--sel)":base}" stroke-width="${sw}" ${h.src==="map"?`stroke-dasharray="${6/s} ${4/s}"`:""}/>`;
+    h.ints.forEach(i=>{const a=h.pt(i[0]),b=h.pt(i[1]);o+=`<line x1="${X(a[0])}" y1="${Y(a[1])}" x2="${X(b[0])}" y2="${Y(b[1])}" stroke="${gcol(i[2])}" stroke-width="${(i[3]?8:5)/s}" stroke-linecap="butt"/>`});
+    if(h.status!=="Assayed"){const p=h.pt(h.len*0.18);o+=`<circle cx="${X(p[0])}" cy="${Y(p[1])}" r="${7/s}" fill="var(--vg)"/>`}
+    o+=`<circle cx="${c0[0]}" cy="${c0[1]}" r="${(on?5.5:4)/s}" fill="var(--sheet)" stroke="${on?"var(--sel)":"var(--ink)"}" stroke-width="${1.6/s}"/>`;
+    const lab = h.id.replace("N2-",""), dx = (c1[0]-c0[0]), dy=(c1[1]-c0[1]), L=Math.hypot(dx,dy)||1;
+    const lx = c1[0]+dx/L*8/s, ly = c1[1]+dy/L*8/s + 4/s;
+    o+=`<text x="${lx}" y="${ly}" font-size="${(on?12.5:11)/s}" font-weight="${on?600:400}" fill="${on?"var(--sel)":"var(--ink)"}" text-anchor="${dx<-5?"end":dx>5?"start":"middle"}">${lab}</text></g>`;
+  });
+  // scale bar and north arrow
+  const sb = view==="a"?100:500, bx = W-sb-30/s, by = 26/s;
+  o+=`<rect x="${bx-8/s}" y="${by-18/s}" width="${sb+16/s}" height="${30/s}" fill="var(--sheet)" opacity=".85"/><line x1="${bx}" x2="${bx+sb}" y1="${by}" y2="${by}" stroke="var(--ink)" stroke-width="${3/s}"/><text x="${bx+sb/2}" y="${by-6/s}" font-size="${fs}" text-anchor="middle" fill="var(--ink)">${sb} m</text>`;
+  o+=`<g transform="translate(${W-30/s},${Hh-48/s})"><path d="M0 ${-16/s} L${7/s} ${8/s} L0 ${3/s} L${-7/s} ${8/s}Z" fill="var(--ink)"/><text y="${-20/s}" font-size="${12/s}" text-anchor="middle" fill="var(--ink)" font-weight="600">N</text></g>`;
+  svg.innerHTML = o;
+  svg.querySelectorAll(".hole-hit").forEach(g=>{
+    g.addEventListener("click",()=>select(g.dataset.id));
+    g.addEventListener("keydown",e=>{if(e.key==="Enter"||e.key===" "){e.preventDefault();select(g.dataset.id)}});
+  });
+}
+
+const NOTES = {
+ "N2-25-003":"Logged with 152.9 m of visual mineralization in January; best assay 3.0 g/t over 4.5 m.",
+ "N2-25-008":"Logged with 208.8 m of visual mineralization; main assay 0.95 g/t over 61.1 m.",
+ "N2-25-011":"Promoted in January for 166.8 m of visual mineralization; assay 0.69 g/t over 7.5 m appeared only in a table.",
+ "N2-25-013":"Promoted for visible gold; assay 4.16 g/t over 0.5 m appeared only in a table.",
+ "N2-25-006":"Headline length 21.9 m does not match its depths (154.4 to 175.5 m is 21.1 m).",
+ "N2-25-012":"Headline result of the year's first assays, repeated in 14 later releases. Apr 16 credited it to N2-25-005.",
+ "N2-26-024":"Visible gold reported Apr 21 with assays 'pending'. No assays published through Sep 29.",
+ "N2-26-15A":"Sep 8 calls it the furthest southern step-out, but N2-26-24 sits further south. Intercepts lie 340 to 490 m vertical.",
+ "N2-26-033":"Best gram metres of 2026, from 7 m below surface. Composited at a 0.1 g/t cut-off, half the 0.2 g/t used elsewhere.",
+ "N2-26-021":"Called 'a true discovery'; extends the A Zone 200 m west at about 204 m vertical.",
+ "N2-25-001":"RJ Zone hole; low grades against a 7.82 g/t historic RJ grade, reported only in a table.",
+ "N2-25-002":"RJ Zone hole; low grades reported only in a table.",
+};
+
+function card(){
+  const h = H.find(x=>x.id===sel);
+  const tags = [`<span class="tag ${h.zone==="RJ"?"rj":""}">${h.zone} Zone</span>`, h.status!=="Assayed"?`<span class="tag vg">Visible gold only</span>`:"", h.src==="map"?`<span class="tag map">Collar from map</span>`:`<span class="tag">Collar from table</span>`].join(" ");
+  const scale = Math.max(h.len, ...h.ints.map(i=>i[1]));
+  const strip = `<svg viewBox="0 0 300 26" width="100%" height="26" aria-hidden="true"><rect x="0" y="9" width="300" height="8" fill="var(--grid)"/>${h.ints.map(i=>`<rect x="${i[0]/scale*300}" y="${i[3]?4:7}" width="${Math.max(1.5,(i[1]-i[0])/scale*300)}" height="${i[3]?18:12}" fill="${gcol(i[2])}"/>`).join("")}${h.status!=="Assayed"?`<circle cx="${0.18*300}" cy="13" r="6" fill="var(--vg)"/>`:""}</svg>`;
+  const ints = h.ints.length ? `<ul class="ints">${h.ints.map(i=>`<li><i style="background:${gcol(i[2])}"></i><span>${i[2].toFixed(2)} g/t over ${(i[1]-i[0]).toFixed(1)} m</span><span>${i[0]}–${i[1]} m</span></li>`).join("")}</ul>` : `<div class="callout">No assays published.</div>`;
+  const vis = h.visual ? `<dt>Visual logged</dt><dd>${h.visual} m "target mineralization"</dd>` : "";
+  document.getElementById("card").innerHTML = `
+    <div class="eyebrow">Selected hole</div>
+    <h2>${h.id}</h2><div>${tags}</div>
+    <dl><dt>First released</dt><dd>${fmtDate(h.rel)}</dd><dt>Collar</dt><dd>${h.e}E ${h.n}N</dd><dt>Az / dip</dt><dd>${h.az}° / ${h.dip}°${h.src==="map"?" (est.)":""}</dd><dt>Length</dt><dd>${h.len} m${h.src==="map"?" (est.)":""}</dd>${vis}<dt>Best gram metres</dt><dd>${h.gmBest.toFixed(1)}</dd></dl>
+    <div class="strip"><div class="strip-lbl"><span>Collar 0 m</span><span>${scale} m downhole</span></div>${strip}</div>
+    ${ints}
+    ${NOTES[h.id]?`<div class="callout">${NOTES[h.id]}</div>`:""}`;
+}
+
+function table(){
+  const zones = ["All","A","A west","A south","A north","RJ"];
+  document.getElementById("chips").innerHTML = zones.map(z=>`<button aria-pressed="${z===zoneFilter}" data-z="${z}">${z}</button>`).join("");
+  document.querySelectorAll("#chips button").forEach(b=>b.onclick=()=>{zoneFilter=b.dataset.z;table()});
+  const rows=[]; const maxgm = 93.7;
+  H.filter(h=>zoneFilter==="All"||h.zone===zoneFilter).forEach(h=>{
+    if(!h.ints.length) rows.push(`<tr data-id="${h.id}" class="${h.id===sel?"on":""}"><td><b>${h.id}</b></td><td>${h.zone}</td><td>${fmtDate(h.rel)}</td><td class="num" colspan="6" style="text-align:left">Visible gold reported; no assays published</td></tr>`);
+    h.ints.forEach(i=>{const L=i[1]-i[0],gm=L*i[2];
+      rows.push(`<tr data-id="${h.id}" class="${h.id===sel?"on":""}"><td><b>${h.id}</b></td><td>${h.zone}</td><td>${fmtDate(h.rel)}</td><td class="num">${i[0].toFixed(1)}</td><td class="num">${i[1].toFixed(1)}</td><td class="num">${L.toFixed(1)}</td><td class="num">${i[2].toFixed(2)}</td><td class="num">${gm.toFixed(1)}<span class="gm" style="width:${Math.max(2,gm/maxgm*70)}px"></span></td><td class="num">${(i[0]*Math.sin(rad(Math.abs(h.dip)))).toFixed(0)}</td></tr>`)});
+  });
+  document.getElementById("tb").innerHTML = rows.join("");
+  document.querySelectorAll("#tb tr").forEach(r=>r.onclick=()=>select(r.dataset.id));
+}
+
+function select(id){sel=id; const h=H.find(x=>x.id===id); if(h.zone==="RJ"&&view==="a") setView("all"); else drawMap(); card(); table()}
+function setView(v){view=v;document.getElementById("v-a").setAttribute("aria-pressed",v==="a");document.getElementById("v-all").setAttribute("aria-pressed",v==="all");drawMap()}
+document.getElementById("v-a").onclick=()=>setView("a");
+document.getElementById("v-all").onclick=()=>setView("all");
+kpis(); drawMap(); card(); table();
+</script>
+
+</body></html>
